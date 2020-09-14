@@ -4,21 +4,22 @@ import random
 
 
 class RootWindow(object):
+    qr_code_all_array = []
     qr_code_array = []
 
     width = 920
     height = 640
     padding = 20
 
-    leftBoxRight = int((width - 40) / 2) - 100
-    leftBoxBottom = height - 40
+    left_box_right = int((width - 40) / 2) - 100
+    left_box_bottom = height - 40
 
     def setup_ui(self, Dialog):
-        Dialog.setObjectName("Dialog")
+        Dialog.setObjectName("RootWindow")
         Dialog.resize(self.width, self.height)
 
-        self.set_step1(Dialog)
-        self.set_step_2(Dialog)
+        self.set_step1_ui(Dialog)
+        self.set_step_2_ui(Dialog)
 
         Dialog.setWindowTitle("Neuron QRCode Creator")
         Dialog.setWindowIcon(QIcon('../static/logo_small.png'))
@@ -28,16 +29,16 @@ class RootWindow(object):
 
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def set_step1(self, Dialog):
-        self.qrcodes_edit = QtWidgets.QTextEdit(Dialog)
-        self.qrcodes_edit.setGeometry(QtCore.QRect(self.padding, self.padding, self.leftBoxRight, self.leftBoxBottom))
-        self.qrcodes_edit.setObjectName("qrCodesEdit")
-        self.qrcodes_edit.setFont(QFont('Arial', 18))
+    def set_step1_ui(self, Dialog):
+        self.qr_codes_edit = QtWidgets.QTextEdit(Dialog)
+        self.qr_codes_edit.setGeometry(QtCore.QRect(self.padding, self.padding, self.left_box_right, self.left_box_bottom))
+        self.qr_codes_edit.setObjectName("qrCodesEdit")
+        self.qr_codes_edit.setFont(QFont('Arial', 18))
 
         step1_box = QtWidgets.QGroupBox(Dialog)
-        step1_box.setGeometry(QtCore.QRect(self.leftBoxRight + self.padding * 2,
+        step1_box.setGeometry(QtCore.QRect(self.left_box_right + self.padding * 2,
                                            self.padding,
-                                           self.width - self.leftBoxRight - self.padding * 3,
+                                           self.width - self.left_box_right - self.padding * 3,
                                            int(self.height / 2 - self.padding * 2)
                                            ))
         step1_box.setObjectName("step1_box")
@@ -98,17 +99,29 @@ class RootWindow(object):
         self.clear_btn.setDisabled(True)
         self.clear_btn.clicked.connect(self.clear_btn_clicked)
 
-        # self.step1label = QtWidgets.QLabel(self.step1_box)
-        # self.step1label.setGeometry(QtCore.QRect(20, 60, self.width - self.leftBoxRight - self.padding, 60))
-        # self.step1label.setObjectName("suffixLabel")
-        # self.step1label.setFont(QFont('Arial', 16))
-        # self.step1label.setText("this is a tips")
+        scroll_area = QtWidgets.QScrollArea(step1_box)
+        scroll_area.setGeometry(QtCore.QRect(20, 130, self.width - self.left_box_right - self.padding * 5, 140))
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setObjectName("scroll_area")
 
-    def set_step_2(self, Dialog):
+        scroll_area_widget = QtWidgets.QWidget()
+        scroll_area_widget.setGeometry(QtCore.QRect(0, 0, self.width - self.left_box_right - self.padding * 5, 140))
+        scroll_area_widget.setObjectName("scroll_area_widget")
+
+        self.batch_label = QtWidgets.QLabel(scroll_area_widget)
+        self.batch_label.setGeometry(QtCore.QRect(20, 130, self.width - self.left_box_right - self.padding * 5, 140))
+        self.batch_label.setObjectName("batch_label")
+        self.batch_label.setAlignment(QtCore.Qt.AlignTop)
+        self.batch_label.setWordWrap(True)
+        self.batch_label.setFont(QFont('Arial', 14))
+        self.batch_label.setStyleSheet("background-color: lightGray; overflow:scroll;")
+        scroll_area.setWidget(self.batch_label)
+
+    def set_step_2_ui(self, Dialog):
         self.step2_box = QtWidgets.QGroupBox(Dialog)
-        self.step2_box.setGeometry(QtCore.QRect(self.leftBoxRight + self.padding * 2,
+        self.step2_box.setGeometry(QtCore.QRect(self.left_box_right + self.padding * 2,
                                                 int(self.height / 2),
-                                                self.width - self.leftBoxRight - self.padding * 3,
+                                                self.width - self.left_box_right - self.padding * 3,
                                                 int(self.height / 2 - self.padding)
                                                 ))
         self.step2_box.setObjectName("step2Box")
@@ -134,17 +147,35 @@ class RootWindow(object):
                 continue
             self.qr_code_array.append(qr_code)
             count += 1
-        self.qrcodes_edit.setText('\n'.join(self.qr_code_array))
+        self.qr_codes_edit.setText('\n'.join(self.qr_code_array))
         self.change_clear_btn_status()
+        self.append_qr_code_array()
+        self.update_batch_desc()
 
     def change_clear_btn_status(self):
-        if len(self.qr_code_array) == 0:
+        if len(self.qr_code_all_array) == 0 and len(self.qr_code_array) == 0:
             self.clear_btn.setDisabled(True)
             return
 
         self.clear_btn.setDisabled(False)
 
     def clear_btn_clicked(self):
+        self.qr_code_all_array = []
         self.qr_code_array = []
-        self.qrcodes_edit.setText('')
+        self.qr_codes_edit.setText('')
         self.change_clear_btn_status()
+        self.update_batch_desc()
+
+    def append_qr_code_array(self):
+        self.qr_code_all_array.append({ 'count': int(self.count_edit.text()), 'prefix': self.prefix_edit.text() })
+
+    def update_batch_desc(self):
+        text = ''
+        for item in self.qr_code_all_array:
+            text += "批次：{}, 数组：{} \n".format(item['prefix'], item['count'])
+
+        if len(self.qr_code_all_array) > 0:
+            text += "\n"
+
+        text += "总数量：{}".format(len(self.qr_code_array))
+        self.batch_label.setText(text)
