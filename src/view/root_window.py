@@ -1,11 +1,14 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QIcon, QFont, QIntValidator
 import random
+from src.ebike_creator import create_e_bike_qr_codes
+from src.n3_scooter_creator import create_n3_scooter_qr_codes
 
 
 class RootWindow(object):
-    qr_code_all_array = []
+    batch_array = []
     qr_code_array = []
+    create_type = "N3-Scooter"
 
     width = 920
     height = 640
@@ -31,7 +34,8 @@ class RootWindow(object):
 
     def set_step1_ui(self, Dialog):
         self.qr_codes_edit = QtWidgets.QTextEdit(Dialog)
-        self.qr_codes_edit.setGeometry(QtCore.QRect(self.padding, self.padding, self.left_box_right, self.left_box_bottom))
+        self.qr_codes_edit.setGeometry(
+            QtCore.QRect(self.padding, self.padding, self.left_box_right, self.left_box_bottom))
         self.qr_codes_edit.setObjectName("qrCodesEdit")
         self.qr_codes_edit.setFont(QFont('Arial', 18))
 
@@ -92,10 +96,10 @@ class RootWindow(object):
         row2_left += 160
 
         self.clear_btn = QtWidgets.QPushButton(step1_box)
-        self.clear_btn.setGeometry(QtCore.QRect(row2_left + 20, 80, 80, 34))
+        self.clear_btn.setGeometry(QtCore.QRect(row2_left + 20, 80, 140, 34))
         self.clear_btn.setObjectName("clearBtn")
         self.clear_btn.setStyleSheet(open("static/button.css").read())
-        self.clear_btn.setText("清空二维码")
+        self.clear_btn.setText("清空二维码序列")
         self.clear_btn.setDisabled(True)
         self.clear_btn.clicked.connect(self.clear_btn_clicked)
 
@@ -114,18 +118,8 @@ class RootWindow(object):
         self.batch_label.setAlignment(QtCore.Qt.AlignTop)
         self.batch_label.setWordWrap(True)
         self.batch_label.setFont(QFont('Arial', 14))
-        self.batch_label.setStyleSheet("background-color: lightGray; overflow:scroll;")
+        self.batch_label.setStyleSheet("background-color: lightGray;")
         scroll_area.setWidget(self.batch_label)
-
-    def set_step_2_ui(self, Dialog):
-        self.step2_box = QtWidgets.QGroupBox(Dialog)
-        self.step2_box.setGeometry(QtCore.QRect(self.left_box_right + self.padding * 2,
-                                                int(self.height / 2),
-                                                self.width - self.left_box_right - self.padding * 3,
-                                                int(self.height / 2 - self.padding)
-                                                ))
-        self.step2_box.setObjectName("step2Box")
-        self.step2_box.setTitle('步骤二')
 
     def change_generate_btn_status(self):
         if not self.count_edit.text() or int(self.count_edit.text()) == 0 or int(self.count_edit.text()) > 999:
@@ -151,31 +145,95 @@ class RootWindow(object):
         self.change_clear_btn_status()
         self.append_qr_code_array()
         self.update_batch_desc()
+        self.change_create_btn_status()
 
     def change_clear_btn_status(self):
-        if len(self.qr_code_all_array) == 0 and len(self.qr_code_array) == 0:
+        if len(self.batch_array) == 0 and len(self.qr_code_array) == 0:
             self.clear_btn.setDisabled(True)
             return
 
         self.clear_btn.setDisabled(False)
 
     def clear_btn_clicked(self):
-        self.qr_code_all_array = []
+        self.batch_array = []
         self.qr_code_array = []
         self.qr_codes_edit.setText('')
         self.change_clear_btn_status()
         self.update_batch_desc()
+        self.change_create_btn_status()
 
     def append_qr_code_array(self):
-        self.qr_code_all_array.append({ 'count': int(self.count_edit.text()), 'prefix': self.prefix_edit.text() })
+        self.batch_array.append({'count': int(self.count_edit.text()), 'prefix': self.prefix_edit.text()})
 
     def update_batch_desc(self):
         text = ''
-        for item in self.qr_code_all_array:
+        for item in self.batch_array:
             text += "批次：{}, 数组：{} \n".format(item['prefix'], item['count'])
 
-        if len(self.qr_code_all_array) > 0:
+        if len(self.batch_array) > 0:
             text += "\n"
 
         text += "总数量：{}".format(len(self.qr_code_array))
         self.batch_label.setText(text)
+
+    def set_step_2_ui(self, Dialog):
+        step2_box = QtWidgets.QGroupBox(Dialog)
+        step2_box.setGeometry(QtCore.QRect(self.left_box_right + self.padding * 2,
+                                           int(self.height / 2),
+                                           self.width - self.left_box_right - self.padding * 3,
+                                           int(self.height / 2 - self.padding)
+                                           ))
+        step2_box.setObjectName("step2Box")
+        step2_box.setTitle('步骤二')
+
+        step_title_label = QtWidgets.QLabel(step2_box)
+        step_title_label.setGeometry(QtCore.QRect(20, 30, 160, 30))
+        step_title_label.setObjectName("step_title_label")
+        step_title_label.setAlignment(QtCore.Qt.AlignTop)
+        step_title_label.setWordWrap(True)
+        step_title_label.setFont(QFont('Arial', 16))
+        step_title_label.setText("选择生成二维码类型：")
+
+        scooterRadioButton = QtWidgets.QRadioButton(step2_box)
+        scooterRadioButton.setGeometry(QtCore.QRect(20, 65, 140, 30))
+        scooterRadioButton.setObjectName("step_title_label")
+        scooterRadioButton.setText("N3-Scooter")
+        scooterRadioButton.setChecked(True)
+        scooterRadioButton.setFont(QFont('Arial', 16))
+        scooterRadioButton.toggled.connect(lambda: self.toggle_type_radio(scooterRadioButton))
+
+        ebikeRadioButton = QtWidgets.QRadioButton(step2_box)
+        ebikeRadioButton.setGeometry(QtCore.QRect(160, 65, 140, 30))
+        ebikeRadioButton.setObjectName("step_title_label")
+        ebikeRadioButton.setText("E-Bike")
+        ebikeRadioButton.setFont(QFont('Arial', 16))
+        ebikeRadioButton.toggled.connect(lambda: self.toggle_type_radio(ebikeRadioButton))
+
+        self.create_btn = QtWidgets.QPushButton(step2_box)
+        self.create_btn.setGeometry(QtCore.QRect(20, 110, 160, 34))
+        self.create_btn.setObjectName("create_btn")
+        self.create_btn.setText("生成二维码图片")
+        self.create_btn.setStyleSheet(open("static/button.css").read())
+        self.create_btn.setDisabled(True)
+        self.create_btn.clicked.connect(self.create_qr_code_file)
+
+    def toggle_type_radio(self, btn):
+        if btn.text() == "N3-Scooter":
+            self.create_type = "N3-Scooter"
+        elif btn.text() == "E-Bike":
+            self.create_type = "E-Bike"
+
+        print(self.create_type)
+
+    def change_create_btn_status(self):
+        if len(self.batch_array) == 0 or len(self.qr_code_array) == 0:
+            self.create_btn.setDisabled(True)
+            return
+        self.create_btn.setDisabled(False)
+
+    def create_qr_code_file(self):
+        print(self.create_type)
+        if self.create_type == "E-Bike":
+            create_e_bike_qr_codes(self.qr_code_array, self.batch_array)
+        elif self.create_type == "N3-Scooter":
+            create_n3_scooter_qr_codes(self.qr_code_array, self.batch_array)
