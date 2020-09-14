@@ -32,6 +32,7 @@ class RootWindow(object):
         self.qrcodes_edit = QtWidgets.QTextEdit(Dialog)
         self.qrcodes_edit.setGeometry(QtCore.QRect(self.padding, self.padding, self.leftBoxRight, self.leftBoxBottom))
         self.qrcodes_edit.setObjectName("qrCodesEdit")
+        self.qrcodes_edit.setFont(QFont('Arial', 18))
 
         step1_box = QtWidgets.QGroupBox(Dialog)
         step1_box.setGeometry(QtCore.QRect(self.leftBoxRight + self.padding * 2,
