@@ -22,6 +22,9 @@ def create_e_bike_qr_codes(qr_codes, batch_array, callback):
         add_n3_ebike_caption(save_path, 'No. ' + code, 35)
         print("Index:", idx, " , Code: ", code)
 
+        if callback:
+            callback(idx)
+
         if count + 1 == current_batch['count']:
             print(count, code, current_batch['count'])
             batch_index += 1
@@ -31,9 +34,6 @@ def create_e_bike_qr_codes(qr_codes, batch_array, callback):
             count = 0
         else:
             count += 1
-
-        if callback:
-            callback(idx)
 
 
 def get_current_batch_and_path(batch_array, batch_index):

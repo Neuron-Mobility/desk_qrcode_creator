@@ -22,6 +22,10 @@ def create_n3_scooter_qr_codes(qr_codes, batch_array, callback):
         add_n3_caption_and_bg(save_path, 'No. ' + code, 110)
         print("Index:", idx, " , Code: ", code)
 
+        if callback:
+            print("test:{}".format(idx))
+            callback(idx)
+
         if count + 1 == current_batch['count']:
             print(count, code, current_batch['count'])
             batch_index += 1
@@ -31,9 +35,6 @@ def create_n3_scooter_qr_codes(qr_codes, batch_array, callback):
             count = 0
         else:
             count += 1
-
-        if callback:
-            callback(idx)
 
 
 def get_current_batch_and_path(batch_array, batch_index):

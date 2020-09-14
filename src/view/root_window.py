@@ -1,6 +1,10 @@
+from threading import Thread
+
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QIcon, QFont, QIntValidator
 import random
+
+from src.RunThread import RunThread
 from src.ebike_creator import create_e_bike_qr_codes
 from src.n3_scooter_creator import create_n3_scooter_qr_codes
 
@@ -9,9 +13,8 @@ class RootWindow(object):
     batch_array = []
     qr_code_array = []
     create_type = "N3-Scooter"
-    step = 0
     creating = False
-    current_creating_idx = 0
+    thread = None
 
     width = 920
     height = 640
@@ -153,7 +156,6 @@ class RootWindow(object):
         self.append_qr_code_array()
         self.update_batch_desc()
         self.change_create_btn_status()
-        self.pbar.hide()
 
     def change_clear_btn_status(self):
         if (len(self.batch_array) == 0 and len(self.qr_code_array) == 0) or self.creating:
@@ -169,7 +171,6 @@ class RootWindow(object):
         self.change_clear_btn_status()
         self.update_batch_desc()
         self.change_create_btn_status()
-        self.pbar.hide()
 
     def append_qr_code_array(self):
         self.batch_array.append({'count': int(self.count_edit.text()), 'prefix': self.prefix_edit.text()})
@@ -224,11 +225,15 @@ class RootWindow(object):
         self.create_btn.setText("生成二维码图片")
         self.create_btn.setStyleSheet(open("static/button.css").read())
         self.create_btn.setDisabled(True)
-        self.create_btn.clicked.connect(lambda: self.create_qr_code_clicked(Dialog))
+        self.create_btn.clicked.connect(self.create_qr_code_clicked)
 
-        self.pbar = QtWidgets.QProgressBar(step2_box)
-        self.pbar.setGeometry(20, 150, 250, 36)
-        self.pbar.hide()
+        self.progress_label = QtWidgets.QLabel(step2_box)
+        self.progress_label.setGeometry(QtCore.QRect(20, 160, 200, 30))
+        self.progress_label.setObjectName("step_title_label")
+        self.progress_label.setAlignment(QtCore.Qt.AlignTop)
+        self.progress_label.setWordWrap(True)
+        self.progress_label.setFont(QFont('Arial', 16))
+        self.progress_label.setText("")
 
     def toggle_type_radio(self, btn):
         if btn.text() == "N3-Scooter":
@@ -244,35 +249,31 @@ class RootWindow(object):
             return
         self.create_btn.setDisabled(False)
 
-    # def timerEvent(self, event):
-    #     if self.step >= 100:
-    #         self.create_finished()
-    #         return
-    #     self.step = (len(self.qr_code_array) / (self.current_creating_idx + 1)) * 100
-    #     self.pbar.setValue(self.step)
-
-    def create_qr_code_clicked(self, Dialog):
-        self.step = 0
+    def create_qr_code_clicked(self):
         self.creating = True
-        self.pbar.show()
-
-        self.timer = QtCore.QBasicTimer()
-        self.timer.start(100, Dialog)
-
         self.change_create_btn_status()
+        self.change_generate_btn_status()
+        self.change_clear_btn_status()
 
         print(self.create_type)
-        if self.create_type == "E-Bike":
-            create_e_bike_qr_codes(self.qr_code_array, self.batch_array, self.creator_call_back)
-        elif self.create_type == "N3-Scooter":
-            create_n3_scooter_qr_codes(self.qr_code_array, self.batch_array, self.creator_call_back)
+
+        self.thread = RunThread(self.create_type, self.qr_code_array, self.batch_array)
+        self.thread.idx_signal.connect(self.creator_call_back)
+        self.thread.start()
+
         print("complete")
 
     def creator_call_back(self, idx):
-        self.current_creating_idx = idx
+        step = int(((idx + 1) / len(self.qr_code_array)) * 100)
+        if step > 100:
+            step = 100
+        self.progress_label.setText("已完成：{}%".format(step))
+        self.progress_label.repaint()
+        if idx == len(self.qr_code_array) - 1:
+            self.create_finished()
 
     def create_finished(self):
         self.creating = False
-        if self.timer.isActive():
-            self.timer.stop()
         self.change_create_btn_status()
+        self.change_generate_btn_status()
+        self.change_clear_btn_status()
