@@ -8,5 +8,7 @@ python3 -m pip install -r requirements.txt
 
 ### build the app
 ```python
-pyinstaller -D src/main.py
+pyinstaller --windowed --onefile --icon=logo.ico --noconfirm main.py
+
+#pyinstaller --windowed --onefile --noconfirm --icon=logo.ico main.spec
 ```

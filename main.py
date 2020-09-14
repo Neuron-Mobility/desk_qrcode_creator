@@ -1,4 +1,5 @@
 import sys
+
 from PyQt5.QtWidgets import QApplication, QDialog
 
 from src.view.root_window import RootWindow

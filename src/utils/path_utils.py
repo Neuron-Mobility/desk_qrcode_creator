@@ -1,4 +1,4 @@
-import os
+import os, sys
 
 
 def get_download_path():
@@ -12,3 +12,8 @@ def get_download_path():
         return location
     else:
         return os.path.join(os.path.expanduser('~'), 'downloads')
+
+
+def get_file_path(fileName):
+    path = os.path.join(os.path.dirname(sys.argv[0]), fileName)
+    return path
