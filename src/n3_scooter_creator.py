@@ -4,7 +4,7 @@ from src.config import N3_LOGO
 import os
 
 
-def create_n3_scooter_qr_codes(qr_codes, batch_array):
+def create_n3_scooter_qr_codes(qr_codes, batch_array, callback):
     batch_index = 0
     current_batch, path = get_current_batch_and_path(batch_array, batch_index)
     if current_batch is None and path is None:
@@ -31,6 +31,9 @@ def create_n3_scooter_qr_codes(qr_codes, batch_array):
             count = 0
         else:
             count += 1
+
+        if callback:
+            callback(idx)
 
 
 def get_current_batch_and_path(batch_array, batch_index):

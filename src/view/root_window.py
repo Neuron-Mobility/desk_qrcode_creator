@@ -9,6 +9,9 @@ class RootWindow(object):
     batch_array = []
     qr_code_array = []
     create_type = "N3-Scooter"
+    step = 0
+    creating = False
+    current_creating_idx = 0
 
     width = 920
     height = 640
@@ -122,6 +125,10 @@ class RootWindow(object):
         scroll_area.setWidget(self.batch_label)
 
     def change_generate_btn_status(self):
+        if self.creating:
+            self.generate_btn.setDisabled(True)
+            return
+
         if not self.count_edit.text() or int(self.count_edit.text()) == 0 or int(self.count_edit.text()) > 999:
             self.generate_btn.setDisabled(True)
             return
@@ -146,9 +153,10 @@ class RootWindow(object):
         self.append_qr_code_array()
         self.update_batch_desc()
         self.change_create_btn_status()
+        self.pbar.hide()
 
     def change_clear_btn_status(self):
-        if len(self.batch_array) == 0 and len(self.qr_code_array) == 0:
+        if (len(self.batch_array) == 0 and len(self.qr_code_array) == 0) or self.creating:
             self.clear_btn.setDisabled(True)
             return
 
@@ -161,6 +169,7 @@ class RootWindow(object):
         self.change_clear_btn_status()
         self.update_batch_desc()
         self.change_create_btn_status()
+        self.pbar.hide()
 
     def append_qr_code_array(self):
         self.batch_array.append({'count': int(self.count_edit.text()), 'prefix': self.prefix_edit.text()})
@@ -215,7 +224,11 @@ class RootWindow(object):
         self.create_btn.setText("生成二维码图片")
         self.create_btn.setStyleSheet(open("static/button.css").read())
         self.create_btn.setDisabled(True)
-        self.create_btn.clicked.connect(self.create_qr_code_file)
+        self.create_btn.clicked.connect(lambda: self.create_qr_code_clicked(Dialog))
+
+        self.pbar = QtWidgets.QProgressBar(step2_box)
+        self.pbar.setGeometry(20, 150, 250, 36)
+        self.pbar.hide()
 
     def toggle_type_radio(self, btn):
         if btn.text() == "N3-Scooter":
@@ -226,14 +239,40 @@ class RootWindow(object):
         print(self.create_type)
 
     def change_create_btn_status(self):
-        if len(self.batch_array) == 0 or len(self.qr_code_array) == 0:
+        if len(self.batch_array) == 0 or len(self.qr_code_array) == 0 or self.creating:
             self.create_btn.setDisabled(True)
             return
         self.create_btn.setDisabled(False)
 
-    def create_qr_code_file(self):
+    # def timerEvent(self, event):
+    #     if self.step >= 100:
+    #         self.create_finished()
+    #         return
+    #     self.step = (len(self.qr_code_array) / (self.current_creating_idx + 1)) * 100
+    #     self.pbar.setValue(self.step)
+
+    def create_qr_code_clicked(self, Dialog):
+        self.step = 0
+        self.creating = True
+        self.pbar.show()
+
+        self.timer = QtCore.QBasicTimer()
+        self.timer.start(100, Dialog)
+
+        self.change_create_btn_status()
+
         print(self.create_type)
         if self.create_type == "E-Bike":
-            create_e_bike_qr_codes(self.qr_code_array, self.batch_array)
+            create_e_bike_qr_codes(self.qr_code_array, self.batch_array, self.creator_call_back)
         elif self.create_type == "N3-Scooter":
-            create_n3_scooter_qr_codes(self.qr_code_array, self.batch_array)
+            create_n3_scooter_qr_codes(self.qr_code_array, self.batch_array, self.creator_call_back)
+        print("complete")
+
+    def creator_call_back(self, idx):
+        self.current_creating_idx = idx
+
+    def create_finished(self):
+        self.creating = False
+        if self.timer.isActive():
+            self.timer.stop()
+        self.change_create_btn_status()
