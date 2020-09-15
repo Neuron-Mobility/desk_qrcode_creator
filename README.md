@@ -7,8 +7,13 @@ python3 -m pip install -r requirements.txt
 ```
 
 ### build the app
-```python
-pyinstaller --windowed --onefile --icon=logo.ico --noconfirm main.py
+```shell script
+pyi-makespec -w -F -i=logo.ico --add-data=static:static --osx-bundle-identifier=com.neuronride.qrcode-creator main.py
 
-#pyinstaller --windowed --onefile --noconfirm --icon=logo.ico main.spec
+pyinstaller -w -F --clean --noconfirm main.spec
+```
+
+if permission denied:
+```shell script
+sudo rm -rf /Users/leng/Library/Application\ Support/pyinstaller/bincache00_py38_64bit/*
 ```

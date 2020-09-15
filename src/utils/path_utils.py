@@ -14,6 +14,12 @@ def get_download_path():
         return os.path.join(os.path.expanduser('~'), 'downloads')
 
 
-def get_file_path(fileName):
-    path = os.path.join(os.path.dirname(sys.argv[0]), fileName)
-    return path
+def resource_path(relative_path):
+    # path = os.path.join(os.path.dirname(sys.argv[0]), fileName)
+    # return path
+    if getattr(sys, 'frozen', False):  # 是否Bundle Resource
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+        # base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
