@@ -8,7 +8,7 @@ python3 -m pip install -r requirements.txt
 
 ### build the app
 ```shell script
-pyi-makespec -w -F -i=logo.ico --add-data=static:static --osx-bundle-identifier=com.neuronride.qrcode-creator main.py
+pyi-makespec -w -F -i=logo-mac.icns --add-data=static:static --osx-bundle-identifier=com.neuronride.qrcode-creator main.py
 
 pyinstaller -w -F --clean --noconfirm main.spec
 ```

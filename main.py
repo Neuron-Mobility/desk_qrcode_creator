@@ -2,6 +2,7 @@ import sys
 
 from PyQt5.QtWidgets import QApplication, QDialog
 
+from src.utils.logger_utils import init_log, lg
 from src.view.root_window import RootWindow
 
 
@@ -15,7 +16,11 @@ class MainDialog(QDialog):
 
 
 if __name__ == '__main__':
-    myapp = QApplication(sys.argv)
-    myDlg = MainDialog()
-    myDlg.show()
-    sys.exit(myapp.exec_())
+    try:
+        init_log()
+        myapp = QApplication(sys.argv)
+        myDlg = MainDialog()
+        myDlg.show()
+        sys.exit(myapp.exec_())
+    except Exception as err:
+        lg.error(err)

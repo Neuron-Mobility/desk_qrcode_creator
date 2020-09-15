@@ -30,7 +30,7 @@ class RootWindow(object):
         self.set_step_2_ui(Dialog)
 
         Dialog.setWindowTitle("Neuron QRCode Creator")
-        Dialog.setWindowIcon(QIcon(resource_path(os.path.join('..', 'static', 'logo_small.png'))))
+        Dialog.setWindowIcon(QIcon(resource_path(os.path.join('static', 'logo_small.png'))))
 
         Dialog.setFixedSize(Dialog.width(), Dialog.height())
         Dialog.setMaximumSize(QtCore.QSize(Dialog.width(), Dialog.height()))
@@ -95,7 +95,7 @@ class RootWindow(object):
         self.generate_btn.setGeometry(QtCore.QRect(row2_left, 80, 160, 34))
         self.generate_btn.setObjectName("generateBtn")
         self.generate_btn.setText("← 随机生成二维码序列")
-        self.generate_btn.setStyleSheet(open(resource_path(os.path.join('..', 'static', 'button.css'))).read())
+        self.generate_btn.setStyleSheet(open(resource_path(os.path.join('static', 'button.css'))).read())
         self.generate_btn.setDisabled(True)
         self.generate_btn.clicked.connect(self.generate_btn_clicked)
         row2_left += 160
@@ -103,7 +103,7 @@ class RootWindow(object):
         self.clear_btn = QtWidgets.QPushButton(step1_box)
         self.clear_btn.setGeometry(QtCore.QRect(row2_left + 20, 80, 140, 34))
         self.clear_btn.setObjectName("clearBtn")
-        self.clear_btn.setStyleSheet(open(resource_path(os.path.join('..', 'static', 'button.css'))).read())
+        self.clear_btn.setStyleSheet(open(resource_path(os.path.join('static', 'button.css'))).read())
         self.clear_btn.setText("清空二维码序列")
         self.clear_btn.setDisabled(True)
         self.clear_btn.clicked.connect(self.clear_btn_clicked)
@@ -222,7 +222,7 @@ class RootWindow(object):
         self.create_btn.setGeometry(QtCore.QRect(20, 110, 160, 34))
         self.create_btn.setObjectName("create_btn")
         self.create_btn.setText("生成二维码图片")
-        self.create_btn.setStyleSheet(open(resource_path(os.path.join('..', 'static', 'button.css'))).read())
+        self.create_btn.setStyleSheet(open(resource_path(os.path.join('static', 'button.css'))).read())
         self.create_btn.setDisabled(True)
         self.create_btn.clicked.connect(self.create_qr_code_clicked)
 
