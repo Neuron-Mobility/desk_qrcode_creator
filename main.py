@@ -7,8 +7,6 @@ from src.view.root_window import RootWindow
 
 
 class MainDialog(QDialog):
-    main_ui = None
-
     def __init__(self, parent=None):
         super(QDialog, self).__init__(parent)
         self.main_ui = RootWindow()
