@@ -1,6 +1,10 @@
 import os, sys
 
 
+def is_win():
+    return os.name == 'nt'
+
+
 def get_download_path():
     """Returns the default downloads path for linux or windows"""
     if os.name == 'nt':

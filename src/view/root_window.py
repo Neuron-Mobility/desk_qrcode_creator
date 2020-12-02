@@ -5,7 +5,7 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QIcon, QFont, QIntValidator
 
 from src.RunThread import RunThread
-from src.utils.path_utils import resource_path
+from src.utils.path_utils import resource_path, is_win
 
 
 class RootWindow(object):
@@ -21,6 +21,9 @@ class RootWindow(object):
 
     left_box_right = int((width - 40) / 2) - 100
     left_box_bottom = height - 40
+
+    is_win_os = is_win()
+    font_size = 10 if is_win_os else 16
 
     def setup_ui(self, Dialog):
         Dialog.setObjectName("RootWindow")
@@ -42,7 +45,7 @@ class RootWindow(object):
         self.qr_codes_edit.setGeometry(
             QtCore.QRect(self.padding, self.padding, self.left_box_right, self.left_box_bottom))
         self.qr_codes_edit.setObjectName("qrCodesEdit")
-        self.qr_codes_edit.setFont(QFont('Arial', 18))
+        self.qr_codes_edit.setFont(QFont('Arial', self.font_size + 2))
 
         step1_box = QtWidgets.QGroupBox(Dialog)
         step1_box.setGeometry(QtCore.QRect(self.left_box_right + self.padding * 2,
@@ -59,7 +62,7 @@ class RootWindow(object):
         prefix_label = QtWidgets.QLabel(step1_box)
         prefix_label.setGeometry(QtCore.QRect(row1_left, 26, 100, 32))
         prefix_label.setObjectName("prefix_label")
-        prefix_label.setFont(QFont('Arial', 16))
+        prefix_label.setFont(QFont('Arial', self.font_size))
         prefix_label.setText("二维码前缀：")
         row1_left += 100
 
@@ -68,7 +71,7 @@ class RootWindow(object):
         self.prefix_edit.setGeometry(QtCore.QRect(row1_left, 26, 80, 30))
         self.prefix_edit.setObjectName("prefixEdit")
         self.prefix_edit.setAlignment(QtCore.Qt.AlignRight)
-        self.prefix_edit.setFont(QFont('Arial', 16))
+        self.prefix_edit.setFont(QFont('Arial', self.font_size))
         self.prefix_edit.setMaxLength(5)
         self.prefix_edit.setValidator(QIntValidator(1, 99999))
         self.prefix_edit.textChanged.connect(self.change_generate_btn_status)
@@ -77,7 +80,7 @@ class RootWindow(object):
         count_label = QtWidgets.QLabel(step1_box)
         count_label.setGeometry(QtCore.QRect(row1_left + 100, 26, 50, 32))
         count_label.setObjectName("count_label")
-        count_label.setFont(QFont('Arial', 16))
+        count_label.setFont(QFont('Arial', self.font_size))
         count_label.setText("数量：")
         row1_left += 100 + 50
 
@@ -86,7 +89,7 @@ class RootWindow(object):
         self.count_edit.setGeometry(QtCore.QRect(row1_left, 26, 60, 30))
         self.count_edit.setObjectName("prefixEdit")
         self.count_edit.setAlignment(QtCore.Qt.AlignRight)
-        self.count_edit.setFont(QFont('Arial', 16))
+        self.count_edit.setFont(QFont('Arial', self.font_size))
         self.count_edit.setMaxLength(3)
         self.count_edit.setValidator(QIntValidator(1, 999))
         self.count_edit.textChanged.connect(self.change_generate_btn_status)
@@ -122,7 +125,7 @@ class RootWindow(object):
         self.batch_label.setObjectName("batch_label")
         self.batch_label.setAlignment(QtCore.Qt.AlignTop)
         self.batch_label.setWordWrap(True)
-        self.batch_label.setFont(QFont('Arial', 14))
+        self.batch_label.setFont(QFont('Arial', self.font_size - 2))
         self.batch_label.setStyleSheet("background-color: lightGray;")
         scroll_area.setWidget(self.batch_label)
 
@@ -196,11 +199,11 @@ class RootWindow(object):
         step2_box.setTitle('步骤二')
 
         step_title_label = QtWidgets.QLabel(step2_box)
-        step_title_label.setGeometry(QtCore.QRect(20, 30, 160, 30))
+        step_title_label.setGeometry(QtCore.QRect(20, 30, 180, 30))
         step_title_label.setObjectName("step_title_label")
         step_title_label.setAlignment(QtCore.Qt.AlignTop)
         step_title_label.setWordWrap(True)
-        step_title_label.setFont(QFont('Arial', 16))
+        step_title_label.setFont(QFont('Arial', self.font_size))
         step_title_label.setText("选择生成二维码类型：")
 
         scooterRadioButton = QtWidgets.QRadioButton(step2_box)
@@ -208,14 +211,14 @@ class RootWindow(object):
         scooterRadioButton.setObjectName("step_title_label")
         scooterRadioButton.setText("N3-Scooter")
         scooterRadioButton.setChecked(True)
-        scooterRadioButton.setFont(QFont('Arial', 16))
+        scooterRadioButton.setFont(QFont('Arial', self.font_size))
         scooterRadioButton.toggled.connect(lambda: self.toggle_type_radio(scooterRadioButton))
 
         ebikeRadioButton = QtWidgets.QRadioButton(step2_box)
         ebikeRadioButton.setGeometry(QtCore.QRect(160, 65, 140, 30))
         ebikeRadioButton.setObjectName("step_title_label")
         ebikeRadioButton.setText("E-Bike")
-        ebikeRadioButton.setFont(QFont('Arial', 16))
+        ebikeRadioButton.setFont(QFont('Arial', self.font_size))
         ebikeRadioButton.toggled.connect(lambda: self.toggle_type_radio(ebikeRadioButton))
 
         self.create_btn = QtWidgets.QPushButton(step2_box)
@@ -231,7 +234,7 @@ class RootWindow(object):
         self.progress_label.setObjectName("step_title_label")
         self.progress_label.setAlignment(QtCore.Qt.AlignTop)
         self.progress_label.setWordWrap(True)
-        self.progress_label.setFont(QFont('Arial', 16))
+        self.progress_label.setFont(QFont('Arial', self.font_size))
         self.progress_label.setText("")
 
     def toggle_type_radio(self, btn):
